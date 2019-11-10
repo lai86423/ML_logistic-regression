@@ -19,7 +19,7 @@ import sklearn.preprocessing
 
 
 def load_train_test_data(train_ratio=.5):
-    data = pandas.read_csv('./HTRU_2.csv', header=None, names=['x%i' % (i) for i in range(8)] + ['y'])
+    data = pandas.read_csv('./HTRU_3.csv', header=None, names=['x%i' % (i) for i in range(8)] + ['y'])
     X = numpy.asarray(data[['x%i' % (i) for i in range(8)]])
     X = numpy.hstack((numpy.ones((X.shape[0],1)), X))
     y = numpy.asarray(data['y'])
@@ -43,30 +43,33 @@ def cross_entropy(y, y_hat):
     return loss
 
 
-def logreg_sgd(X, y, alpha = .001, iters = 100000, eps=1e-4,lmbda=1e-2):
+def logreg_sgd(X, y, alpha = .0001, iters = 2000, eps=1e-6,lmbda=1e-2):
     # TODO: compute theta
+    print("--------------compute theta---------------------")
     n, d = X.shape
-    #print(X,n, d)
+    print("N=",n,"D=",d)
     operatorOne = numpy.ones(d)
-    print("operatorOne=",operatorOne)
     theta = numpy.zeros(d)
-    print("theta=",theta)
     pretheta=numpy.zeros(d)
-    predited_y=numpy.zeros(d)
+    predited_y=numpy.zeros(n)
     for i in range(iters):
-            print(X[i])
+        if i<n:
+            print("Xi=",X[i])
             pretheta = theta
             print("i=",i,"--pretheta=",pretheta )
             predited_y[i] = sigmoid(X[i].T.dot(theta))
-            print("predited_y=",predited_y[i])
-            print("y=",y[i],"y-predited_y=",y[i]-predited_y[i])
+            print("y=",y[i],"predited_y=",predited_y[i],"y-predited_y=",y[i]-predited_y[i])
             error = X[i].T.dot(y[i]-predited_y[i])
-            print("error=",error)
+            #print("error=",error)
             theta = pretheta + (alpha*error)-lmbda*theta
-            print("This round theta=",theta)
-            if ((theta-pretheta).T.dot(operatorOne)<=eps):
-                print("theta<=eps!!!")
-                break        
+            #print("This round theta=",theta)
+        else:
+            i-=n
+            
+        #if ((theta-pretheta).T.dot(operatorOne)<=eps):
+        #   print("theta<=eps!!!")
+         #  break    
+    print("--------------compute theta end---------------------")    
     return theta
 
 
@@ -106,10 +109,10 @@ def plot_roc_curve(y_test, y_prob):
                     TN+=1
                 else:
                     FP+=1
-        print(TP,FP,TN,FN)
+        print("TP=",TP,"FP=",FP,"TN=",TN,"FN=",FN)
         tpr.append(TP/(TP+FN))
         fpr.append(FP/(FP+TN))
-    print(tpr,fpr)
+    print("TPR=",tpr,"FPR=",fpr)
     plt.plot(fpr, tpr)
     plt.xlabel("FPR")
     plt.ylabel("TPR")
